@@ -78,11 +78,10 @@ int main(void)
 		timer.Mode = GPIO_MODE_IT_RISING;
 		timer.Alternate = 0;
 		timer.Speed = GPIO_MODE_FAST;
-		timer.PIN = 0;
+		timer.Pin = 0;
 		timer.Pull = GPIO_MODE_INPUT;
 
 		HAL_GPIO(GPIOA, &timer);
-
 
 
 	int cnt = 0;
