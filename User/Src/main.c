@@ -43,6 +43,22 @@ void SysTick_Handler(void)
  */
 
 
+
+// Volatile nur in interrupt service routine
+volatile int state=0;
+
+void EXTI0_IRQHandler(void){
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+
+	if(state==1){
+		state==2;
+	}else if (state==2){
+		state==1;
+	}
+
+}
+
+
 int main(void)
 {
 	/* MCU Configuration--------------------------------------------------------*/
@@ -57,31 +73,55 @@ int main(void)
 	/* touch screen calibration */
 	//	TS_Calibration();
 
+
+	//NVIC konfiguration
+	 HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
+
+
+
 	/* Clear the LCD and display basic starter text */
 	LCD_Clear(LCD_COLOR_BLACK);
 	LCD_SetTextColor(LCD_COLOR_YELLOW);
 	LCD_SetBackColor(LCD_COLOR_BLACK);
 	LCD_SetFont(&Font20);
 	// There are 2 ways to print text to screen: using printf or LCD_* functions
-	LCD_DisplayStringAtLine(0, "    HTL Wels");
+	LCD_DisplayStringAtLine(0, "    ");
 	// printf Alternative
 	LCD_SetPrintPosition(1, 0);
-	printf(" Fischergasse 30");
+	printf(" EXTI Interrupte 30");
 	LCD_SetPrintPosition(2, 0);
-	printf("   A-4600 Wels");
+	printf("  ");
 
 	LCD_SetFont(&Font8);
 	LCD_SetColors(LCD_COLOR_MAGENTA, LCD_COLOR_BLACK); // TextColor, BackColor
 	LCD_DisplayStringAtLineMode(39, "copyright Kimeswenger", CENTER_MODE);
 
+
+// Konfiguration GPIO(timer und led)
+
 	GPIO_InitTypeDef timer;
 		timer.Mode = GPIO_MODE_IT_RISING;
 		timer.Alternate = 0;
-		timer.Speed = GPIO_MODE_FAST;
+		timer.Speed = GPIO_SPEED_FAST;
 		timer.Pin = 0;
 		timer.Pull = GPIO_MODE_INPUT;
 
-		HAL_GPIO(GPIOA, &timer);
+		HAL_GPIO_Init(GPIOA, &timer);
+
+		GPIO_InitTypeDef led;
+			timer.Mode = GPIO_MODE_IT_RISING;
+			timer.Alternate = 0;
+			timer.Speed = GPIO_SPEED_MEDIUM;
+			timer.Pin = 13;
+			timer.Pull = GPIO_MODE_INPUT;
+
+		HAL_GPIO_Init(GPIOG, &led);
+
+
+		int timer1;
+		int timer2;
+
 
 
 	int cnt = 0;
@@ -90,6 +130,17 @@ int main(void)
 	{
 		//execute main loop every 100ms
 		HAL_Delay(100);
+
+		//ToDo
+
+		if(state==1){
+			timer1++;
+		}else if(state==2){
+			timer2++;
+		}
+
+
+
 
 		// display timer
 		cnt++;
@@ -107,6 +158,8 @@ int main(void)
 
 	}
 }
+
+
 
 /**
  * Check if User Button has been pressed
@@ -141,5 +194,21 @@ static int GetTouchState (int* xCoord, int* yCoord) {
 
 	return touchclick;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
