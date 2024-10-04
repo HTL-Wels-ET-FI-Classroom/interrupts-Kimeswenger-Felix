@@ -45,18 +45,19 @@ void SysTick_Handler(void)
 
 
 // Volatile nur in interrupt service routine
-volatile int state=0;
+volatile int state=1;
 
 void EXTI0_IRQHandler(void){
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
 
 	if(state==1){
-		state==2;
+		state = 2;
 	}else if (state==2){
-		state==1;
+		state = 1;
 	}
 
 }
+
 
 
 int main(void)
@@ -74,8 +75,6 @@ int main(void)
 	//	TS_Calibration();
 
 
-	//NVIC konfiguration
-	 HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 
 
@@ -98,29 +97,32 @@ int main(void)
 	LCD_DisplayStringAtLineMode(39, "copyright Kimeswenger", CENTER_MODE);
 
 
-// Konfiguration GPIO(timer und led)
+	// Konfiguration GPIO(timer und led)
 
 	GPIO_InitTypeDef timer;
-		timer.Mode = GPIO_MODE_IT_RISING;
-		timer.Alternate = 0;
-		timer.Speed = GPIO_SPEED_FAST;
-		timer.Pin = 0;
-		timer.Pull = GPIO_MODE_INPUT;
+	timer.Mode = GPIO_MODE_IT_RISING;
+	timer.Alternate = 0;
+	timer.Speed = GPIO_SPEED_FAST;
+	timer.Pin = GPIO_PIN_0;
+	timer.Pull = GPIO_PULLDOWN;
 
-		HAL_GPIO_Init(GPIOA, &timer);
+	HAL_GPIO_Init(GPIOA, &timer);
 
-		GPIO_InitTypeDef led;
-			timer.Mode = GPIO_MODE_IT_RISING;
-			timer.Alternate = 0;
-			timer.Speed = GPIO_SPEED_MEDIUM;
-			timer.Pin = 13;
-			timer.Pull = GPIO_MODE_INPUT;
+	GPIO_InitTypeDef led;
+	led.Mode = GPIO_MODE_OUTPUT_PP;
+	led.Alternate = 0;
+	led.Speed = GPIO_SPEED_MEDIUM;
+	led.Pin = GPIO_PIN_13;
+	led.Pull = GPIO_NOPULL;
 
-		HAL_GPIO_Init(GPIOG, &led);
+	HAL_GPIO_Init(GPIOG, &led);
+
+	//NVIC konfiguration
+	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 
-		int timer1;
-		int timer2;
+	int timer1=0;
+	int timer2=0;
 
 
 
@@ -132,7 +134,6 @@ int main(void)
 		HAL_Delay(100);
 
 		//ToDo
-
 		if(state==1){
 			timer1++;
 		}else if(state==2){
@@ -143,11 +144,16 @@ int main(void)
 
 
 		// display timer
-		cnt++;
+		//		cnt++;
 		LCD_SetFont(&Font20);
 		LCD_SetTextColor(LCD_COLOR_BLUE);
 		LCD_SetPrintPosition(5, 0);
-		printf("   Timer: %.1f", cnt/10.0);
+		printf("   Timer_1: %.1f\n", timer1/10.0);
+		printf("   Timer_2!: %.1f", timer2/10.0);
+
+
+
+
 
 		// test touch interface
 		int x, y;
