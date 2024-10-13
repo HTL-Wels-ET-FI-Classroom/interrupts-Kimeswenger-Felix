@@ -24,6 +24,11 @@
 /* Private define ------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
+static	int timer1=0;
+static int timer2=0;
+static int state=1;
+static int color=LCD_COLOR_BLUE;
+
 
 /* Private function prototypes -----------------------------------------------*/
 static int GetUserButtonPressed(void);
@@ -32,9 +37,16 @@ static int GetTouchState (int *xCoord, int *yCoord);
 /**
  * @brief This function handles System tick timer.
  */
-void SysTick_Handler(void)
-{
+void SysTick_Handler(void){
 	HAL_IncTick();
+
+	if(state==1){
+		timer1++;
+	}else if(state==2){
+		timer2++;
+	}
+
+
 }
 
 /**
@@ -42,10 +54,6 @@ void SysTick_Handler(void)
  * @retval int
  */
 
-
-
-// Volatile nur in interrupt service routine
-volatile int state=1;
 
 void EXTI0_IRQHandler(void){
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
@@ -56,12 +64,25 @@ void EXTI0_IRQHandler(void){
 		state = 1;
 	}
 
+
+
+}
+
+void EXTI3_IRQHandler(void){
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
+
+	//Abfrage
+	if(color==LCD_COLOR_BLUE){
+		color=LCD_COLOR_GREEN;
+	}else if(color==LCD_COLOR_GREEN){
+		color=LCD_COLOR_BLUE;
+	}
+
 }
 
 
+int main(void){
 
-int main(void)
-{
 	/* MCU Configuration--------------------------------------------------------*/
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
@@ -108,48 +129,35 @@ int main(void)
 
 	HAL_GPIO_Init(GPIOA, &timer);
 
-	GPIO_InitTypeDef led;
-	led.Mode = GPIO_MODE_OUTPUT_PP;
-	led.Alternate = 0;
-	led.Speed = GPIO_SPEED_MEDIUM;
-	led.Pin = GPIO_PIN_13;
-	led.Pull = GPIO_NOPULL;
+	GPIO_InitTypeDef color_switch;
+	color_switch.Mode = GPIO_MODE_OUTPUT_PP;
+	color_switch.Alternate = 0;
+	color_switch.Speed = GPIO_SPEED_MEDIUM;
+	color_switch.Pin = GPIO_PIN_3;
+	color_switch.Pull = GPIO_PULLUP;
 
-	HAL_GPIO_Init(GPIOG, &led);
+	HAL_GPIO_Init(GPIOG, &color_switch);
+
 
 	//NVIC konfiguration
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-
-
-	int timer1=0;
-	int timer2=0;
-
+	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 
 
 	int cnt = 0;
 	/* Infinite loop */
-	while (1)
-	{
-		//execute main loop every 100ms
-		HAL_Delay(100);
-
-		//ToDo
-		if(state==1){
-			timer1++;
-		}else if(state==2){
-			timer2++;
-		}
+	while (1){
 
 
 
 
 		// display timer
-		//		cnt++;
 		LCD_SetFont(&Font20);
-		LCD_SetTextColor(LCD_COLOR_BLUE);
+		LCD_SetTextColor(color);
 		LCD_SetPrintPosition(5, 0);
-		printf("   Timer_1: %.1f\n", timer1/10.0);
-		printf("   Timer_2!: %.1f", timer2/10.0);
+		printf("   Timer_1: %.1f", timer1/1000.0);
+		LCD_SetPrintPosition(6, 0);
+		printf("   Timer_2: %.1f", timer2/1000.0);
 
 
 
