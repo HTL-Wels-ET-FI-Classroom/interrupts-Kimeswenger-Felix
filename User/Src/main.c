@@ -27,7 +27,7 @@
 static	int timer1=0;
 static int timer2=0;
 static int state=1;
-static int color=LCD_COLOR_BLUE;
+static int color=LCD_COLOR_GREEN;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -127,7 +127,7 @@ int main(void){
 	HAL_GPIO_Init(GPIOA, &timer);
 
 	GPIO_InitTypeDef color_switch;
-	color_switch.Mode = GPIO_MODE_OUTPUT_PP;
+	color_switch.Mode = GPIO_MODE_IT_RISING;
 	color_switch.Alternate = 0;
 	color_switch.Speed = GPIO_SPEED_MEDIUM;
 	color_switch.Pin = GPIO_PIN_3;
