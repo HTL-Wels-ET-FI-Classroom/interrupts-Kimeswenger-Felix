@@ -97,9 +97,6 @@ int main(void){
 
 
 
-
-
-
 	/* Clear the LCD and display basic starter text */
 	LCD_Clear(LCD_COLOR_BLACK);
 	LCD_SetTextColor(LCD_COLOR_YELLOW);
@@ -148,9 +145,6 @@ int main(void){
 	/* Infinite loop */
 	while (1){
 
-
-
-
 		// display timer
 		LCD_SetFont(&Font20);
 		LCD_SetTextColor(color);
@@ -160,15 +154,11 @@ int main(void){
 		printf("   Timer_2: %.1f", timer2/1000.0);
 
 
-
-
-
 		// test touch interface
 		int x, y;
 		if (GetTouchState(&x, &y)) {
 			LCD_FillCircle(x, y, 5);
 		}
-
 
 	}
 }
